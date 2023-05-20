@@ -24,7 +24,7 @@ async def save_audiofile(user_id: int, file: UploadFile):
         os.mkdir(user_dir)
 
     tmp_path = os.path.abspath(f'{user_dir}/{file.filename}')
-    if os.path.exists(tmp_path):
+    if os.path.exists(tmp_path[:-4]+'.mp3'):
         return ''
 
     tmp = open(tmp_path, "wb")
