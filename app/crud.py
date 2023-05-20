@@ -1,13 +1,13 @@
-from sqlalchemy.orm import Session
-from fastapi import UploadFile
-
-from . import models
+import os
 import uuid
 
-import os
 import pydub
+from fastapi import UploadFile, status
+from sqlalchemy.orm import Session
 
-AUDIO_ROOT = os.path.abspath("/audio")
+from . import models
+
+AUDIO_ROOT = "/audio"
 
 
 def create_user(db: Session, username: str):
@@ -19,13 +19,13 @@ def create_user(db: Session, username: str):
 
 
 async def save_audiofile(user_id: int, file: UploadFile):
-    user_dir = os.path.abspath(f'{AUDIO_ROOT}/{user_id}')
+    user_dir = f"{AUDIO_ROOT}/{user_id}"
     if not os.path.exists(user_dir):
         os.mkdir(user_dir)
 
-    tmp_path = os.path.abspath(f'{user_dir}/{file.filename}')
-    if os.path.exists(tmp_path[:-4]+'.mp3'):
-        return ''
+    tmp_path = f"{user_dir}/{file.filename}"
+    if os.path.exists(tmp_path[:-4]+".mp3"):
+        return ""
 
     tmp = open(tmp_path, "wb")
     tmp.write(await file.read())
@@ -47,7 +47,20 @@ def create_audiofile(db: Session, filename: str):
 
 
 def get_audiofile_by_id(db: Session, id: str):
-    audio = db.query(models.AudioFile).filter(models.AudioFile.id == uuid.UUID(id)).first()
+    audio = db.query(models.AudioFile).filter(
+        models.AudioFile.id == uuid.UUID(id)
+    ).first()
     if audio:
         return audio.filename
-    return ''
+    return ""
+
+
+def check_user_token(db: Session, user_id: int, token: str):
+    db_user = db.query(models.User).filter(
+        models.User.id == user_id
+    ).first()
+    if not db_user:
+        return status.HTTP_404_NOT_FOUND
+    if db_user.token != uuid.UUID(token):
+        return status.HTTP_401_UNAUTHORIZED
+    return status.HTTP_200_OK
