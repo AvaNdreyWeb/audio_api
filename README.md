@@ -26,7 +26,7 @@
 | column         | type      |
 |----------------|-----------|
 | id             | UUID      |
-| audiofile      | varchar   |
+| filename       | varchar   |
 
 ### Создание нового пользователя
 
