@@ -1,5 +1,4 @@
 # audio_api
-Решение второй тестовой задачи на позицию Junior-разработчика
 
 Использованные технологии:
 - Python (FastAPI, SQLAlchemy, pydub)
